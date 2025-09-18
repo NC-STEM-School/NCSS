@@ -1,25 +1,59 @@
 /* ===========================================
-   STAFF.CSS - Staff Page Specific Styles
+   RESPONSIVE STAFF PAGE STYLES
    =========================================== */
+
+/* ===========================================
+   GLOBAL STYLES & RESET
+   =========================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
 
 /* ===========================================
    STAFF PAGE LAYOUT
    =========================================== */
 
 .staff-body {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    vertical-align: middle;
-    background-color: #f8f9fa;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 20px 0;
+  overflow: hidden;
+  width: 100%;
 }
 
 .staff-header {
-    font-size: 2.5rem;
-    color: #094d6b;
-    margin-bottom: 50px;
-    margin-top: 20px;
+  font-size: 2.5rem;
+  color: #094d6b;
+  text-align: center;
+  margin-bottom: 50px;
+  margin-top: 20px;
+  font-weight: 700;
+}
+
+#staff-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+.error-message {
+  text-align: center;
+  color: #dc3545;
+  font-size: 1.1rem;
+  padding: 20px;
 }
 
 /* ===========================================
@@ -27,264 +61,303 @@
    =========================================== */
 
 .subject-section {
-    align-self: baseline;
-    margin-left: 30px;
-    position: flex;
-    border-bottom: #094d6b solid;
-    width: 95%;
-    margin-bottom: 20px;
+  margin-bottom: 60px;
 }
 
-.subject {
-    position: relative;
+.subject-header {
+  margin-bottom: 30px;
 }
 
-.subject-txt {
-    font-size: 1.5rem;
-    color: #094d6b;
-    border-bottom: #094d6b solid;
-    padding: 0 10px 0 10px;
+.subject-title {
+  font-size: 1.8rem;
+  color: #094d6b;
+  font-weight: 600;
+  border-bottom: 3px solid #094d6b;
+  padding-bottom: 10px;
+  display: inline-block;
 }
 
 /* ===========================================
-   STAFF MEMBERS
+   RESPONSIVE GRID SYSTEM
    =========================================== */
 
-.staff-section {
-    margin: 50px 0 50px 0;
-    overflow: hidden;
-    height: 270px;
-    display: flex;
-    flex-direction: row;
+.staff-grid {
+  display: grid;
+  gap: 30px;
+  position: relative;
+  overflow: hidden;
 }
+
+/* Desktop: 3 cards per row */
+@media (min-width: 768px) {
+  .staff-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 100%;
+  }
+}
+
+/* Mobile: 1 card per row */
+@media (max-width: 767px) {
+  .staff-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* ===========================================
+   STAFF MEMBER CARDS
+   =========================================== */
 
 .staff-member {
-    width: 250px;
-    transition: all 0.5s ease;
-    margin-left: 20px;
-    overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-.staff-member.active {
-    width: 680px;
+.staff-card {
+  background: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  height: 280px;
 }
 
-.staff-item {
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    width: 250px;
-    height: 250px;
-    margin-top: 20px;
-    z-index: 1;
+.staff-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.staff-item:hover {
-    transform: translateY(-10px);
+.staff-card.active {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(9, 77, 107, 0.2);
+  border: 2px solid #094d6b;
 }
 
-.staff-item.active {
-    transform: translateY(-10px);
+/* ===========================================
+   CARD IMAGE SECTION
+   =========================================== */
+
+.staff-image-container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
 }
 
-.staff-item img {
-    width: auto;
-    height: 250px;
-    object-fit: cover;
-    transition: transform 0.3s ease;
+.staff-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.staff-item:hover img {
-    transform: scale(1.1);
+.staff-card:hover .staff-image {
+  transform: scale(1.05);
 }
 
 .staff-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(27, 75, 90, 0.9));
-    color: white;
-    padding: 2rem;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-    width: 250px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(9, 77, 107, 0.95));
+  color: white;
+  padding: 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
 }
 
-.staff-item:hover .staff-overlay {
-    transform: translateY(0);
+.staff-card:hover .staff-overlay,
+.staff-card.active .staff-overlay {
+  transform: translateY(0);
 }
 
-.staff-item.active .staff-overlay {
-    transform: translateY(0);
+.staff-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
 }
 
-.staff-overlay h4 {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
-}
-
-/* ===========================================
-   STAFF INFO PANEL
-   =========================================== */
-
-.staff-info {
-    background-color: #f8f9fa;
-    z-index: -1;
-    transform: translate(-200px, -240px);
-    width: 400px;
-    height: 220px;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
-    transition: all 0.5s ease;
-    box-shadow: #0000002c 0px 0px 5px;
-    padding: 5px 0 0 20px;
-    overflow-y: scroll;
-}
-
-.staff-info.active {
-    transform: translate(249px, -240px);
-}
-
-.staff-info::-webkit-scrollbar {
-    width: 10px;
-}
-
-.staff-info::-webkit-scrollbar-track {
-    background: #f9f9f9 !important;
-}
-
-.staff-info::-webkit-scrollbar-thumb {
-    background: #094d6b;
+.staff-title {
+  font-size: 0.95rem;
+  margin: 0;
+  opacity: 0.9;
 }
 
 /* ===========================================
-   WEBSITE FOUNDERS SECTION
+   EXPANDED INFO SECTION
    =========================================== */
 
-#websitefounders .campus-gallery {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    justify-items: center;
+.staff-expanded-info {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  border: 2px solid #094d6b;
+  margin-top: 15px;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
-#websitefounders #founder {
-    width: 250px;
-    height: 250px;
-    border-radius: 50%;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-#websitefounders #founder img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-#websitefounders #founder .gallery-overlay {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    font-size: 14px;
-    padding: 8px 5px;
-    text-align: center;
-}
-
-.job {
-    margin-bottom: 10px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.staff-expanded-info.active {
+  max-height: 400px;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ===========================================
-   RESPONSIVE DESIGN
+   EXPANDED INFO CONTENT
    =========================================== */
 
-@media (max-width: 768px) {
-    .staff-section {
-        flex-direction: column;
-        height: auto;
-        align-items: center;
-    }
-    
-    .staff-member {
-        width: 100%;
-        max-width: 300px;
-        margin: 10px 0;
-    }
-    
-    .staff-member.active {
-        width: 100%;
-        max-width: 500px;
-    }
-    
-    .staff-item {
-        width: 100%;
-        max-width: 300px;
-        height: 300px;
-    }
-    
-    .staff-overlay {
-        width: 100%;
-    }
-    
-    .staff-info {
-        position: static;
-        transform: none;
-        width: 100%;
-        max-width: 500px;
-        height: auto;
-        min-height: 150px;
-        margin-top: 10px;
-        border-radius: 5px;
-    }
-    
-    .staff-info.active {
-        transform: none;
-    }
-    
-    #websitefounders .campus-gallery {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-    
-    #websitefounders #founder {
-        width: 200px;
-        height: 200px;
-    }
+.staff-info-content {
+  padding: 25px;
+  position: relative;
+  overflow: hidden;
 }
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+  color: #094d6b;
+}
+
+.staff-details h4 {
+  font-size: 1.4rem;
+  color: #094d6b;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.staff-details .position {
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.staff-details .subject {
+  font-size: 0.9rem;
+  color: #094d6b;
+  margin: 0 0 15px 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-text {
+  color: #333;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ===========================================
+   RESPONSIVE ADJUSTMENTS
+   =========================================== */
 
 @media (max-width: 480px) {
-    .staff-header {
-        font-size: 2rem;
-        text-align: center;
-    }
-    
-    .subject-section {
-        margin-left: 10px;
-        width: 90%;
-    }
-    
-    .subject-txt {
-        font-size: 1.3rem;
-    }
-    
-    .staff-item {
-        height: 250px;
-    }
-    
-    #websitefounders .campus-gallery {
-        grid-template-columns: 1fr;
-    }
-    
-    #websitefounders #founder {
-        width: 180px;
-        height: 180px;
-    }
+  .staff-header {
+    font-size: 2rem;
+  }
+  
+  .subject-title {
+    font-size: 1.5rem;
+  }
+  
+  .staff-card {
+    height: 250px;
+  }
+  
+  .staff-name {
+    font-size: 1.2rem;
+  }
+  
+  .staff-title {
+    font-size: 0.9rem;
+  }
+  
+  .staff-overlay {
+    padding: 15px;
+  }
+  
+  .staff-info-content {
+    padding: 20px;
+  }
+  
+  #staff-container {
+    padding: 0 15px;
+  }
+  
+  .staff-body {
+    padding: 15px 0;
+  }
+  
+  .staff-expanded-info.active {
+    max-height: 300px;
+  }
+}
+
+/* ===========================================
+   SCROLLBAR REMOVAL
+   =========================================== */
+
+/* Remove all scrollbars */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Ensure no element causes overflow */
+.staff-expanded-info,
+.staff-info-content,
+.info-text {
+  -webkit-scrollbar: none;
+  scrollbar-width: none;
+  overflow: hidden;
+}
+
+/* ===========================================
+   ACCESSIBILITY & INTERACTIONS
+   =========================================== */
+
+.staff-card:focus {
+  outline: 3px solid #094d6b;
+  outline-offset: 2px;
+}
+
+.close-btn:focus {
+  outline: 2px solid #094d6b;
+  outline-offset: 1px;
+}
+
+/* Smooth animations for better UX */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
