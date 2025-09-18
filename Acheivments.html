@@ -1,0 +1,426 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievements</title>
+    <link rel="icon" href="images/ico school.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/achievements.css">
+    <script src="script.js"></script>
+</head>
+<body>
+    
+    <nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <img src="images/logo.png" alt="New Cairo STEM School" class="logo">
+      <span class="logo-text">New Cairo STEM School</span>
+    </div>
+
+    <ul class="nav-menu" id="nav-menu">
+      <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+      <li class="nav-item"><a href="About.html" class="nav-link">About</a></li>
+      <li class="nav-item"><a href="Academics.html" class="nav-link">Academics & Skills</a></li>
+      <li class="nav-item"><a href="Admissions.html" class="nav-link">Admissions</a></li>
+      <li class="nav-item"><a href="Acheivments.html" class="nav-link">Students Achievements</a></li>
+      <li class="nav-item"><a href="Staff.html" class="nav-link">Staff</a></li>
+      <li class="nav-item"><a href="photos.html" class="nav-link">Campus</a></li>
+      <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+    </ul>
+
+    <div class="hamburger" id="hamburger">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
+  </div>
+</nav>
+    <h1 class="achievements-header">Student Achievements</h1>
+        <div class="grid-container" id="achievements-container">
+    <!-- Cards will be injected here by JS -->
+</div>
+<script>
+/* Improved loader: jitter + retries + cache + stale fallback */
+(async function(){
+  const apiKey = "AIzaSyCAH2AEtxsa6t4GwoDVjCDIHUq_hhbNbjo"; // ضيف الـ API key بتاعك
+  const spreadsheetId = "1I5gxqCWa3XviwxWcJeV5oBCMQpqTbvI6S2buLN190uA";
+  const range = "Form Responses"; // غيّره لو اسم التاب مختلف
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+
+  const container = document.getElementById("achievements-container");
+  const CACHE_KEY = 'achievements_cache_v1';
+  const CACHE_TTL = 30 * 1000; // 30s (قابل للتعديل)
+
+  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+  async function fetchWithRetry(url, retries = 5, baseDelay = 700) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          const status = res.status;
+          // Non-retryable codes will stop retries; retry for 429/5xx
+          if (![429,500,502,503,504].includes(status)) {
+            const e = new Error(`HTTP ${status}`);
+            e.status = status;
+            throw e;
+          }
+          const e = new Error(`HTTP ${status}`);
+          e.status = status;
+          throw e;
+        }
+        return await res.json();
+      } catch (err) {
+        console.warn(`fetch attempt ${attempt} failed`, err);
+        const status = err.status || null;
+        const retryable = !status || [429,500,502,503,504].includes(status);
+        if (attempt === retries || !retryable) throw err;
+        const jitter = Math.random() * 400;
+        const delay = baseDelay * Math.pow(2, attempt - 1) + jitter;
+        await sleep(delay);
+      }
+    }
+  }
+
+  function showLoading(){
+    container.innerHTML = `
+      <div class="loading-spinner-achievements">
+            <div class ="loading-bg">
+                <p>Loading Achievements...</p>
+                <div class="loader"></div>
+            </div>
+        </div>
+    `;
+  }
+
+  function renderFromData(data, {stale=false} = {}) {
+    if (!data || !data.values || data.values.length < 2) {
+      container.innerHTML = `<p>⚠️ No achievements found yet.</p>`;
+      return;
+    }
+
+    const headers = data.values[0];
+    const rows = data.values.slice(1);
+    const colIndex = {
+      title: headers.indexOf("The title"),
+      desc: headers.indexOf("Description"),
+      image: headers.indexOf("img url"),
+      year: headers.indexOf("Year"),
+    };
+
+    container.innerHTML = "";
+    if (stale) {
+      const note = document.createElement('div');
+      note.className = 'stale-notice';
+      note.textContent = 'Showing cached data (may be slightly out of date).';
+      container.appendChild(note);
+    }
+
+    for (const row of rows) {
+      const rawImageCell = (row[colIndex.image] || "").toString().trim();
+      const urlMatch = rawImageCell.match(/https?:\/\/[^\s"')]+/i);
+      const finalImage = urlMatch ? urlMatch[0] : (rawImageCell.startsWith("http") ? rawImageCell : null);
+      const imageUrl = finalImage || "https://placehold.co/600x400?text=No+Image";
+
+      const title = row[colIndex.title] || "Untitled";
+      const desc = row[colIndex.desc] || "";
+      const year = row[colIndex.year] || "N/A";
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "card-wrapper";
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.onclick = (e) => { if (typeof handleAchievementOverlay === 'function') handleAchievementOverlay(e); };
+
+      const cardHeader = document.createElement("div");
+      cardHeader.className = "card-header";
+
+      const imageHeader = document.createElement("div");
+      imageHeader.className = "image-header";
+
+      const imgEl = document.createElement("img");
+      imgEl.src = imageUrl;
+      imgEl.alt = "Achievement";
+      imgEl.onerror = function(){ this.src = "https://placehold.co/600x400?text=No+Image"; };
+
+      const dateTag = document.createElement("div");
+      dateTag.className = "date-tag";
+      dateTag.textContent = year;
+
+      imageHeader.appendChild(imgEl);
+      imageHeader.appendChild(dateTag);
+
+      const h3 = document.createElement("h3");
+      h3.textContent = title;
+
+      cardHeader.appendChild(imageHeader);
+      cardHeader.appendChild(h3);
+      card.appendChild(cardHeader);
+      wrapper.appendChild(card);
+
+      // overlay (مثل اللي عندك)
+      const overlay = document.createElement("div");
+      overlay.className = "achievement-overlay";
+      overlay.onclick = (e) => { if (typeof handleoverlayclose === 'function') handleoverlayclose(e); };
+
+      const modal = document.createElement("div"); modal.className = "modal";
+      const modalContent = document.createElement("div"); modalContent.className = "modal-content";
+      const popupImg = document.createElement("img"); popupImg.src = imageUrl; popupImg.alt = "Popup Image";
+      popupImg.onerror = function(){ this.src = "https://placehold.co/1200x800?text=No+Image"; };
+
+      const closeBtn = document.createElement("span"); closeBtn.className = "achievement-close-btn";
+      closeBtn.innerHTML = "&gt;"; closeBtn.onclick = (e) => { e.stopPropagation(); if (typeof handleAchievementclose === 'function') handleAchievementclose(e); };
+
+      const modalTitle = document.createElement("h2"); modalTitle.textContent = title;
+      const modalDesc = document.createElement("p"); modalDesc.style.whiteSpace = "pre-line"; modalDesc.textContent = desc;
+
+      modalContent.appendChild(popupImg);
+      modalContent.appendChild(closeBtn);
+      modalContent.appendChild(modalTitle);
+      modalContent.appendChild(modalDesc);
+      modal.appendChild(modalContent);
+      overlay.appendChild(modal);
+      wrapper.appendChild(overlay);
+      container.appendChild(wrapper);
+    }
+  }
+
+  async function loadAndRender() {
+    showLoading();
+    // small random delay to avoid simultaneous hits from many users
+    await sleep(Math.floor(Math.random() * 600));
+
+    // quick cache check
+    try {
+      const cachedText = localStorage.getItem(CACHE_KEY);
+      if (cachedText) {
+        const parsed = JSON.parse(cachedText);
+        if (Date.now() - parsed.ts < CACHE_TTL) {
+          renderFromData(parsed.data);
+          console.log('Rendered from cache (fresh)');
+          return;
+        }
+      }
+    } catch(e){ console.warn('cache read error', e); }
+
+    try {
+      const data = await fetchWithRetry(url, 5, 700);
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(e){ console.warn('cache write failed', e); }
+      renderFromData(data);
+    } catch (err) {
+      console.error('Final fetch failed', err);
+      // fallback to stale cache if exists
+      try {
+        const cachedText = localStorage.getItem(CACHE_KEY);
+        if (cachedText) {
+          const parsed = JSON.parse(cachedText);
+          renderFromData(parsed.data, { stale: true });
+          // try to refresh quietly in background (won't block UI)
+          fetchWithRetry(url, 3, 800).then(fresh => {
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: fresh })); } catch(e){}
+            renderFromData(fresh);
+          }).catch(()=>{});
+          return;
+        }
+      } catch(e){}
+      container.innerHTML = `<p>⚠️ Unable to load achievements. Please try again later.</p>`;
+    }
+  }
+
+  loadAndRender();
+
+  function initachievements(){
+      const openBtn = document.getElementById("openModal");
+    const overlay = document.getElementById("achievement-overlay");
+    const modal = document.getElementById("modalBox");
+    const closeBtn = document.getElementById("achievement-closeBtn");
+    };
+    function handleAchievementOverlay(event) {
+      const card = event.target.closest(".card-wrapper")
+      const cardoverlay = card.querySelector(".achievement-overlay")
+      const modal = card.querySelector(".modal")
+      
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+      
+      cardoverlay.classList.add("active");
+      setTimeout(() => modal.classList.add("active"), 50);
+    };
+    function handleAchievementclose(event){
+      const modal = event.target.closest(".modal")
+      const overlay = event.target.closest(".achievement-overlay")
+      
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = 'auto';
+      
+      modal.classList.remove("active");
+      setTimeout(() => overlay.classList.remove("active"), 400);
+    }
+    function handleoverlayclose(e){
+      const overlay = e.target.closest(".achievement-overlay")
+      const modal = overlay.querySelector(".modal") 
+      if (e.target === overlay) {
+        // Restore body scroll when modal is closed
+        document.body.style.overflow = 'auto';
+        
+        modal.classList.remove("active");
+        setTimeout(() => overlay.classList.remove("active"), 400);
+      }
+    }
+    
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</section>
+
+ <section id="websitefounders" style="margin-top: 50px;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Website founders</h2>
+                <p class="section-subtitle">
+                        This website was created by the students of New Cairo STEM School.<br>
+                        Our team worked together to design and build it from scratch.<br>
+                        The project reflects our creativity, teamwork, and dedication.<br>
+                        We aim to represent our school’s vision and serve our community.
+                </p>
+            </div>  
+            <div class="achievement-gallery">
+                <div class="achievement-gallery-item" id="founder">
+                    <img src="images/logo.png" alt="founder">
+                    <div class="achievement-gallery-overlay">
+                        <h4> founder</h4>
+                        <p class="job">Web developer</p>
+                    </div>
+                </div>
+                <div class="achievement-gallery-item" id="founder">
+                    <img src="images/logo.png" alt="founder">
+                    <div class="achievement-gallery-overlay">
+                        <h4> founder</h4>
+                        <p class="job">Web developer</p>
+                    </div>
+                </div>
+                <div class="achievement-gallery-item" id="founder">
+                    <img src="images/logo.png" alt="founder">
+                    <div class="achievement-gallery-overlay">
+                        <h4> founder</h4>
+                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
+                    </div>
+                </div>
+                <div class="achievement-gallery-item" id="founder">
+                    <img src="images/logo.png" alt="founder">
+                    <div class="achievement-gallery-overlay">
+                        <h4> founder</h4>
+                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
+                    </div>
+                </div>
+                <div class="achievement-gallery-item" id="founder">
+                    <img src="images/logo.png" alt="founder">
+                    <div class="achievement-gallery-overlay">
+                        <h4> founder</h4>
+                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
+                    </div>
+                </div>
+                <div class="achievement-gallery-item" id="founder">
+                    <img src="images/logo.png" alt="founder">
+                    <div class="achievement-gallery-overlay">
+                        <h4> founder</h4>
+                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
+                    </div>
+                </div>
+
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+   <!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            
+            <!-- اللوجو -->
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="images/logo.png" alt="New Cairo STEM School" class="footer-logo-img">
+                    <h3>New Cairo STEM School</h3>
+                </div>
+                <p>Excellence in Science, Technology, Engineering & Mathematics education, preparing students for a bright future in STEM fields.</p>
+            </div>
+
+            <!-- الروابط -->
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="About.html">About</a></li>
+                    <li><a href="Academics.html">Academics & Skills</a></li>
+                    <li><a href="Admissions.html">Admissions</a></li>
+                    <li><a href="Achievments.html">Students Achievements</a></li>
+                    <li><a href="Staff.html">Staff</a></li>
+                    <li><a href="photos.html">Campus</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- معلومات التواصل -->
+            <!-- Contact Info -->
+<div class="footer-section">
+    <h4>Contact Info</h4>
+    <div class="footer-contact">
+        <p>
+            <i class="fas fa-map-marker-alt"></i> 
+            <a href="https://www.google.com/maps/place/%D9%85%D8%AF%D8%B1%D8%B3%D8%A9+%D8%A7%D9%84%D9%85%D8%AA%D9%81%D9%88%D9%82%D9%8A%D9%86+%D9%81%D9%8A+%D8%A7%D9%84%D8%B9%D9%84%D9%88%D9%85+%D9%88%D8%A7%D9%84%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7%E2%80%AD/@30.0290372,31.4266749,17z/data=!3m1!4b1!4m6!3m5!1s0x14583d04f490b673:0xf0d4baef2536850b!8m2!3d30.0290372!4d31.4266749!16s%2Fg%2F11s7y_sqv6?entry=tts&g_ep=EgoyMDI1MDcxMy4wIPu8ASoASAFQAw%3D%3D&skid=bd41539d-509f-4e99-953e-8ed531167d8a" 
+               target="_blank" 
+               style="color: white; text-decoration: none;">
+               New Cairo, Egypt
+            </a>
+        </p>
+        <p>
+            <i class="fas fa-envelope"></i> 
+            <a href="mailto:newcairosch@stemnewcairo.moe.edu.eg" 
+               style="color: white; text-decoration: none;">
+               newcairosch@stemnewcairo.moe.edu.eg
+            </a>
+        </p>
+    </div>
+</div>
+
+        </div>
+
+        <!-- الحقوق -->
+        <div class="footer-bottom">
+            <div class="footer-credits">
+                <p>&copy; 2025 New Cairo STEM School. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+</body>
+</html>
+

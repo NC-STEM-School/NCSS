@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academics</title>
+    <link rel="icon" href="images/ico school.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/academics.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<!-- Navigation -->
+
+    <nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <img src="images/logo.png" alt="New Cairo STEM School" class="logo">
+      <span class="logo-text">New Cairo STEM School</span>
+    </div>
+
+    <ul class="nav-menu" id="nav-menu">
+      <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+      <li class="nav-item"><a href="About.html" class="nav-link">About</a></li>
+      <li class="nav-item"><a href="Academics.html" class="nav-link">Academics & Skills</a></li>
+      <li class="nav-item"><a href="Admissions.html" class="nav-link">Admissions</a></li>
+      <li class="nav-item"><a href="Acheivments.html" class="nav-link">Students Achievements</a></li>
+      <li class="nav-item"><a href="Staff.html" class="nav-link">Staff</a></li>
+      <li class="nav-item"><a href="photos.html" class="nav-link">Campus</a></li>
+      <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+    </ul>
+
+    <div class="hamburger" id="hamburger">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
+  </div>
+</nav>
+
+<section id="academics" class="academics">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Academic Programs</h2>
+            <p class="section-subtitle">Comprehensive STEM curriculum designed for excellence</p>
+        </div>
+        <div class="academics-grid">
+            <div class="academic-card">
+                <div class="card-icon">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <h4>Science</h4>
+                <p>Advanced courses in Physics, Chemistry, and Biology with hands-on laboratory experiences and research opportunities.</p>
+            </div>
+            <div class="academic-card">
+                <div class="card-icon">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <h4>Technology</h4>
+                <p>Computer Science, Programming, and Digital Innovation courses preparing students for the digital future.</p>
+            </div>
+            <div class="academic-card">
+                <div class="card-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h4>Engineering</h4>
+                <p>Engineering principles, design thinking, and problem-solving methodologies across multiple disciplines.</p>
+            </div>
+            <div class="academic-card">
+                <div class="card-icon">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h4>Mathematics</h4>
+                <p>Advanced mathematics including calculus, statistics, and mathematical modeling for real-world applications.</p>
+            </div>
+        </div>
+    </div>
+    <section id="Extracurriculars">
+        <h1 class="extracs-header">Extracurriculars</h1>
+        <div id="extracs">
+
+        </div>
+<script>
+(async function () {
+  const apiKey = "AIzaSyCAH2AEtxsa6t4GwoDVjCDIHUq_hhbNbjo";
+  const spreadsheetId = "102CAt-vrBrdFVUpmtc_lVXdyTfu0vyf4JolEuLg1BUk";
+  const range = "Form Responses";
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+
+  const container = document.getElementById("extracs");
+  const CACHE_KEY = "extracs_cache_v1";
+  const CACHE_TTL = 30 * 1000; // 30s
+
+  function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  async function fetchWithRetry(url, retries = 5, baseDelay = 700) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          const status = res.status;
+          const e = new Error(`HTTP ${status}`);
+          e.status = status;
+          throw e;
+        }
+        return await res.json();
+      } catch (err) {
+        console.warn(`fetch attempt ${attempt} failed`, err);
+        const status = err.status || null;
+        const retryable = !status || [429, 500, 502, 503, 504].includes(status);
+        if (attempt === retries || !retryable) throw err;
+        const jitter = Math.random() * 400;
+        const delay = baseDelay * Math.pow(2, attempt - 1) + jitter;
+        await sleep(delay);
+      }
+    }
+  }
+
+  function showLoading() {
+    container.innerHTML = `
+      <div class="loading-spinner">
+        <div class="loading-bg">
+          <p>Loading Extracurriculars...</p>
+          <div class="loader"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFromData(data, { stale = false } = {}) {
+    if (!data || !data.values || data.values.length < 2) {
+      container.innerHTML = `<p>⚠️ No Extracurriculars found yet.</p>`;
+      return;
+    }
+
+    const headers = data.values[0];
+    const rows = data.values.slice(1);
+
+    const colIndex = {
+      title: headers.indexOf("The title"),
+      desc: headers.indexOf("Description"),
+      logo: headers.indexOf("Logo url"),
+      teamImg: headers.indexOf("Team img url"),
+      year: headers.indexOf("Year"),
+      founder: headers.indexOf("Founder"),
+    };
+
+    container.innerHTML = "";
+
+    if (stale) {
+      const note = document.createElement("div");
+      note.className = "stale-notice";
+      note.textContent = "Showing cached data (may be slightly out of date).";
+      container.appendChild(note);
+    }
+
+    for (const row of rows) {
+      const rawLogoCell = (row[colIndex.logo] || "").toString().trim();
+      const logoMatch = rawLogoCell.match(/https?:\/\/[^\s"')]+/i);
+      const logoUrl =
+        logoMatch?.[0] || "https://placehold.co/200x200?text=No+Logo";
+
+      const rawTeamImgCell = (row[colIndex.teamImg] || "").toString().trim();
+      const teamImgMatch = rawTeamImgCell.match(/https?:\/\/[^\s"')]+/i);
+      const teamImgUrl =
+        teamImgMatch?.[0] || "https://placehold.co/600x400?text=No+Image";
+
+      const title = row[colIndex.title] || "Untitled";
+      const desc = row[colIndex.desc] || "";
+      const year = row[colIndex.year] || "N/A";
+      const founder = row[colIndex.founder] || "Unknown";
+
+      const extrac = document.createElement("div");
+      extrac.className = "extrac";
+      extrac.onclick = (e) => toggleAchievement(e);
+
+      // Header
+      const header = document.createElement("div");
+      header.className = "extrac-header";
+      header.innerHTML = `
+        <img src="${logoUrl}" alt="${title} logo" onerror="this.src='https://placehold.co/200x200?text=No+Logo'">
+        ${title}
+        <span class="extrac-expand-arrow">&gt;</span>
+      `;
+
+      // Details
+      const details = document.createElement("div");
+      details.className = "extrac-details";
+
+      const imgDiv = document.createElement("div");
+      imgDiv.className = "extrac-img";
+      imgDiv.innerHTML = `
+        <img src="${teamImgUrl}" alt="${title} Team" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+        <p>${title} Team</p>
+      `;
+
+      const txtDiv = document.createElement("div");
+      txtDiv.className = "extrac-txt";
+      txtDiv.innerHTML = `
+        <strong>Founder:</strong> ${founder}<br>
+        <strong>Year:</strong> ${year}<br>
+        <strong>Description:</strong><br>${desc.replace(/\n/g, "<br>")}
+      `;
+
+      details.appendChild(imgDiv);
+      details.appendChild(txtDiv);
+
+      extrac.appendChild(header);
+      extrac.appendChild(details);
+      container.appendChild(extrac);
+    }
+  }
+
+  async function loadAndRender() {
+    showLoading();
+    await sleep(Math.floor(Math.random() * 600));
+
+    try {
+      const cachedText = localStorage.getItem(CACHE_KEY);
+      if (cachedText) {
+        const parsed = JSON.parse(cachedText);
+        if (Date.now() - parsed.ts < CACHE_TTL) {
+          renderFromData(parsed.data);
+          console.log("Rendered from cache (fresh)");
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("cache read error", e);
+    }
+
+    try {
+      const data = await fetchWithRetry(url, 5, 700);
+      try {
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ ts: Date.now(), data })
+        );
+      } catch (e) {
+        console.warn("cache write failed", e);
+      }
+      renderFromData(data);
+    } catch (err) {
+      console.error("Final fetch failed", err);
+      try {
+        const cachedText = localStorage.getItem(CACHE_KEY);
+        if (cachedText) {
+          const parsed = JSON.parse(cachedText);
+          renderFromData(parsed.data, { stale: true });
+          fetchWithRetry(url, 3, 800)
+            .then((fresh) => {
+              try {
+                localStorage.setItem(
+                  CACHE_KEY,
+                  JSON.stringify({ ts: Date.now(), data: fresh })
+                );
+              } catch (e) {}
+              renderFromData(fresh);
+            })
+            .catch(() => {});
+          return;
+        }
+      } catch (e) {}
+      container.innerHTML = `<p>⚠️ Unable to load extracurriculars. Please try again later.</p>`;
+    }
+  }
+
+  loadAndRender();
+
+  function toggleAchievement(event) {
+    const extrac = event.currentTarget;
+    const extracarrow = extrac.querySelector('.extrac-expand-arrow')
+    extrac.classList.toggle("active");
+    extracarrow.classList.toggle("active")
+  }
+})();
+</script>
+
+
+    </section>
+</section>
+   <!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            
+            <!-- اللوجو -->
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="images/logo.png" alt="New Cairo STEM School" class="footer-logo-img">
+                    <h3>New Cairo STEM School</h3>
+                </div>
+                <p>Excellence in Science, Technology, Engineering & Mathematics education, preparing students for a bright future in STEM fields.</p>
+            </div>
+
+            <!-- الروابط -->
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="About.html">About</a></li>
+                    <li><a href="Academics.html">Academics & Skills</a></li>
+                    <li><a href="Admissions.html">Admissions</a></li>
+                    <li><a href="Achievments.html">Students Achievements</a></li>
+                    <li><a href="Staff.html">Staff</a></li>
+                    <li><a href="photos.html">Campus</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- معلومات التواصل -->
+            <!-- Contact Info -->
+<div class="footer-section">
+    <h4>Contact Info</h4>
+    <div class="footer-contact">
+        <p>
+            <i class="fas fa-map-marker-alt"></i> 
+            <a href="https://www.google.com/maps/place/%D9%85%D8%AF%D8%B1%D8%B3%D8%A9+%D8%A7%D9%84%D9%85%D8%AA%D9%81%D9%88%D9%82%D9%8A%D9%86+%D9%81%D9%8A+%D8%A7%D9%84%D8%B9%D9%84%D9%88%D9%85+%D9%88%D8%A7%D9%84%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7%E2%80%AD/@30.0290372,31.4266749,17z/data=!3m1!4b1!4m6!3m5!1s0x14583d04f490b673:0xf0d4baef2536850b!8m2!3d30.0290372!4d31.4266749!16s%2Fg%2F11s7y_sqv6?entry=tts&g_ep=EgoyMDI1MDcxMy4wIPu8ASoASAFQAw%3D%3D&skid=bd41539d-509f-4e99-953e-8ed531167d8a" 
+               target="_blank" 
+               style="color: white; text-decoration: none;">
+               New Cairo, Egypt
+            </a>
+        </p>
+        <p>
+            <i class="fas fa-envelope"></i> 
+            <a href="mailto:newcairosch@stemnewcairo.moe.edu.eg" 
+               style="color: white; text-decoration: none;">
+               newcairosch@stemnewcairo.moe.edu.eg
+            </a>
+        </p>
+    </div>
+</div>
+
+        </div>
+
+        <!-- الحقوق -->
+        <div class="footer-bottom">
+            <div class="footer-credits">
+                <p>&copy; 2025 New Cairo STEM School. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
