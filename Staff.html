@@ -36,11 +36,10 @@
 </nav>
 
 <div class="staff-body">
-<h1 class="staff-header">Staff</h1>
-
-<div id="staff-container">
-  <!-- هنا السيكشنات والكروت هتظهر ديناميك -->
-</div>
+  <h1 class="staff-header">Staff</h1>
+  <div id="staff-container">
+    <!-- Dynamic staff sections will be generated here -->
+  </div>
 </div>
 
 <!-- Footer -->
@@ -87,122 +86,187 @@
   </div>
 </footer>
 
-<!-- Lightbox Modal -->
-<div id="lightbox" class="lightbox">
-  <span class="lightbox-close">&times;</span>
-  <img class="lightbox-content" id="lightbox-img">
-  <div class="lightbox-caption" id="lightbox-caption"></div>
-</div>
-
 <script>
-// ================= Google Sheet Config =================
-const sheetId = "1BauNTIeSgsfNfJp6LStdoX3UEZ-BQNYExNDBapr3Kzs";
-const range = "Staff"; // Columns: Name, Title, Subject, Info, img url
-const apiKey = "AIzaSyCAH2AEtxsa6t4GwoDVjCDIHUq_hhbNbjo";
+// ================= Configuration =================
+const SHEET_CONFIG = {
+  sheetId: "1BauNTIeSgsfNfJp6LStdoX3UEZ-BQNYExNDBapr3Kzs",
+  range: "Staff",
+  apiKey: "AIzaSyCAH2AEtxsa6t4GwoDVjCDIHUq_hhbNbjo"
+};
 
-// ================= Helper Functions =================
+// ================= Utility Functions =================
 function randomDelay() {
-    return Math.floor(Math.random() * 700) + 100; // 100-800ms
+  return Math.floor(Math.random() * 400) + 100;
 }
 
-async function fetchSheetData() {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch Google Sheet data");
-    const data = await res.json();
-    const [header, ...rows] = data.values;
-
-    // Map rows to objects using header
-    return rows.map(row => {
-        const obj = {};
-        header.forEach((key, i) => obj[key] = row[i] || "");
-        return obj;
-    });
+function sanitizeId(text) {
+  return text.replace(/\s+/g, "-").toLowerCase();
 }
 
-// ================= Generate Staff Sections =================
-async function generateStaff() {
-    const staffContainer = document.querySelector(".staff-body");
-    const rows = await fetchSheetData();
-
-    // Group by Subject
-    const subjects = {};
-    rows.forEach(({ Name, Title, Subject, Info, "img url": imgUrl }) => {
-        if (!subjects[Subject]) subjects[Subject] = [];
-        subjects[Subject].push({ name: Name, title: Title, info: Info, imgUrl });
-    });
-
-    // Generate HTML for each subject
-    for (const [subject, members] of Object.entries(subjects)) {
-        const sectionDiv = document.createElement("div");
-        sectionDiv.className = "subject-section";
-
-        sectionDiv.innerHTML = `
-            <div class="subject">
-                <span class="subject-txt">${subject}</span>
-            </div>
-            <div class="staff-section" id="subject-${subject.replace(/\s+/g, "-")}"></div>
-        `;
-        staffContainer.appendChild(sectionDiv);
-
-        const sectionBody = sectionDiv.querySelector(".staff-section");
-
-        for (const member of members) {
-            await new Promise(res => setTimeout(res, randomDelay()));
-
-            const memberDiv = document.createElement("div");
-            memberDiv.className = "staff-member";
-            memberDiv.innerHTML = `
-                <div class="staff-item" onclick="handleStaffclick(event)">
-                    <img src="${member.imgUrl || 'images/placeholder.png'}" alt="${member.name}">
-                    <div class="staff-overlay">
-                        <h4>${member.name}</h4>
-                        <p>${member.title}</p>
-                    </div>
-                </div>
-                <div class="staff-info">
-                    ${member.info || "No additional info available."}
-                </div>
-            `;
-            sectionBody.appendChild(memberDiv);
-        }
+// ================= Data Fetching =================
+async function fetchStaffData() {
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_CONFIG.sheetId}/values/${SHEET_CONFIG.range}?key=${SHEET_CONFIG.apiKey}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-}
+    
+    const data = await response.json();
+    const [headers, ...rows] = data.values;
 
-// ================= Staff Click Modal =================
-function handleStaffclick(e){
-  const otherstaffinfo = document.querySelectorAll('.staff-info')
-  const otherstaffitem = document.querySelectorAll('.staff-item')
-  const otherstaffmember = document.querySelectorAll('.staff-member')
-
-
-  const object = e.target.closest(".staff-member")
-  const staffitem = e.target.closest('.staff-item')
-  if(object.classList.contains('active')){
-  otherstaffinfo.forEach(item => {item.classList.remove('active')})
-  otherstaffitem.forEach(item => {item.classList.remove('active')})
-  otherstaffmember.forEach(item => {item.classList.remove('active')})
-  } else {
-
-  otherstaffinfo.forEach(item => {item.classList.remove('active')})
-  otherstaffitem.forEach(item => {item.classList.remove('active')})
-  otherstaffmember.forEach(item => {item.classList.remove('active')})
-
-  staffitem.classList.toggle('active')
-  object.classList.toggle('active')
-  object.children[1].classList.toggle('active')
-
+    return rows.map(row => {
+      const staff = {};
+      headers.forEach((header, index) => {
+        staff[header] = row[index] || "";
+      });
+      return staff;
+    });
+  } catch (error) {
+    console.error("Error fetching staff data:", error);
+    return [];
   }
 }
 
-// ================= Initialize =================
-document.addEventListener("DOMContentLoaded", () => {
-    generateStaff().catch(err => console.error("Error loading staff:", err));
+// ================= Card Management =================
+let activeCard = null;
+
+function closeActiveCard() {
+  if (activeCard) {
+    const card = activeCard.querySelector('.staff-card');
+    const expandedInfo = activeCard.querySelector('.staff-expanded-info');
+    
+    card.classList.remove('active');
+    expandedInfo.classList.remove('active');
+    activeCard.classList.remove('active');
+    
+    activeCard = null;
+  }
+}
+
+function handleCardClick(event, memberElement) {
+  event.stopPropagation();
+  
+  const card = memberElement.querySelector('.staff-card');
+  const expandedInfo = memberElement.querySelector('.staff-expanded-info');
+  
+  // If clicking the same card, close it
+  if (activeCard === memberElement) {
+    closeActiveCard();
+    return;
+  }
+  
+  // Close any currently active card
+  closeActiveCard();
+  
+  // Open the clicked card
+  card.classList.add('active');
+  expandedInfo.classList.add('active');
+  memberElement.classList.add('active');
+  activeCard = memberElement;
+}
+
+// ================= HTML Generation =================
+function createStaffCard(member) {
+  return `
+    <div class="staff-member">
+      <div class="staff-card" onclick="handleCardClick(event, this.closest('.staff-member'))">
+        <div class="staff-image-container">
+          <img src="${member['img url'] || 'images/placeholder.png'}" 
+               alt="${member.Name}" 
+               class="staff-image">
+          <div class="staff-overlay">
+            <h3 class="staff-name">${member.Name}</h3>
+            <p class="staff-title">${member.Title}</p>
+          </div>
+        </div>
+      </div>
+      <div class="staff-expanded-info">
+        <div class="staff-info-content">
+          <button class="close-btn" onclick="closeActiveCard()">×</button>
+          <div class="staff-details">
+            <h4>${member.Name}</h4>
+            <p class="position">${member.Title}</p>
+            <p class="subject">${member.Subject}</p>
+            <div class="info-text">
+              ${member.Info || "No additional information available."}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function createSubjectSection(subject, members) {
+  const sectionId = sanitizeId(subject);
+  const memberCards = members.map(createStaffCard).join('');
+  
+  return `
+    <div class="subject-section" id="section-${sectionId}">
+      <div class="subject-header">
+        <h2 class="subject-title">${subject}</h2>
+      </div>
+      <div class="staff-grid">
+        ${memberCards}
+      </div>
+    </div>
+  `;
+}
+
+// ================= Main Generation Function =================
+async function generateStaffSections() {
+  const container = document.getElementById('staff-container');
+  const staffData = await fetchStaffData();
+  
+  if (!staffData.length) {
+    container.innerHTML = '<p class="error-message">Unable to load staff data. Please try again later.</p>';
+    return;
+  }
+  
+  // Group staff by subject
+  const subjectGroups = {};
+  staffData.forEach(member => {
+    const subject = member.Subject || 'Other';
+    if (!subjectGroups[subject]) {
+      subjectGroups[subject] = [];
+    }
+    subjectGroups[subject].push(member);
+  });
+  
+  // Generate HTML for each subject
+  let html = '';
+  for (const [subject, members] of Object.entries(subjectGroups)) {
+    html += createSubjectSection(subject, members);
+  }
+  
+  container.innerHTML = html;
+}
+
+// ================= Event Listeners =================
+document.addEventListener('DOMContentLoaded', () => {
+  generateStaffSections();
+  
+  // Close expanded card when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.staff-member') && activeCard) {
+      closeActiveCard();
+    }
+  });
+  
+  // Handle escape key
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && activeCard) {
+      closeActiveCard();
+    }
+  });
 });
 
-
+// ================= Make functions globally available =================
+window.handleCardClick = handleCardClick;
+window.closeActiveCard = closeActiveCard;
 </script>
-
 
 <script src="script.js"></script>
 </body>
