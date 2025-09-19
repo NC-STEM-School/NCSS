@@ -13,6 +13,7 @@
 
 .about-journey {
     padding: 0 0 0 120px;
+    max-width: 80%;
 }
 
 .about-journey h1 {
@@ -25,7 +26,7 @@
 
 .about-journey p {
     color: #555555;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     padding-top: 40px;
     opacity: 0;
     animation: fadeIn 1s ease forwards;
@@ -62,9 +63,9 @@
 }
 
 .foundation-bgimg img {
-    width: 100%;
+    max-width: 100%;
     height: auto;
-    transform: translate(300px, -200px);
+
 }
 
 .foundation-txt {
@@ -75,14 +76,18 @@
 .foundation-txt h1 {
     color: #094d6b;
     font-size: 2.5rem;
-    animation: fallIn 1s ease forwards;
+    opacity: 0;
+    transform: translateX(-50px);
+    animation: fallIn 1.2s ease forwards;
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
 }
 
 .foundation-txt p {
     color: #555555;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    opacity: 0;
+    transform: translateX(-50px);
     padding-top: 40px;
     animation: fallIn 1s ease forwards;
     animation-timeline: view();
@@ -110,17 +115,17 @@
 .vision-txt h1 {
     color: #094d6b;
     font-size: 2.5rem;
-    animation: floatIn 1s ease forwards;
+    animation: floatIn 5s ease forwards;
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
 }
 
 .vision-txt p {
     color: #555555;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     width: 70%;
     padding-top: 40px;
-    animation: floatIn 1s ease forwards;
+    animation: floatIn 1.2s ease forwards;
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
 }
@@ -167,31 +172,42 @@
    =========================================== */
 
 @media(max-width: 1400px) {
+    .about-title{
+        padding-bottom: 40px;
+    }
     .about-journey {
-        padding: 10px;
+        padding: 10px 0 10px 40px;
     }
     
     .foundation-txt {
-        padding: 10px;
+        padding: 100px;
     }
-    
-    .foundation-bgimg {
-        display: none;
+   
+    .vision-txt{
+        padding-top:20px ;
     }
 }
 
 @media (max-width: 768px) {
     .about-journey {
-        padding: 10px;
+        padding: 10px 0 10px 50px;
+    }
+    .about-journey p{
+        padding-top: 30px;
     }
     
     .foundation-txt {
-        padding: 10px;
+        padding: 40px 0 40px 20px;
+        width: 90%;
+        max-width: 300px;
     }
-    
+    .foundation-txt p{
+        padding-top:30px ;
+    }
     .vision-txt p {
         width: 90%;
         max-width: 600px;
+        padding-top: 30px;
     }
     
     .about-foundation {
@@ -208,7 +224,7 @@
     .foundation-txt p,
     .vision-txt p,
     .about-journey p {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
 }
 
@@ -222,7 +238,7 @@
     .foundation-txt p,
     .vision-txt p,
     .about-journey p {
-        font-size: 1rem;
+        font-size: 1.2rem;
     }
     
     .vision-txt p {
