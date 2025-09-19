@@ -28,6 +28,7 @@
       <li class="nav-item"><a href="Acheivments.html" class="nav-link">Students Achievements</a></li>
       <li class="nav-item"><a href="Staff.html" class="nav-link">Staff</a></li>
       <li class="nav-item"><a href="photos.html" class="nav-link">Campus</a></li>
+      <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
     </ul>
 
     <div class="hamburger" id="hamburger">
@@ -45,8 +46,8 @@
 /* Improved loader: jitter + retries + cache + stale fallback */
 (async function(){
   const apiKey = "AIzaSyCAH2AEtxsa6t4GwoDVjCDIHUq_hhbNbjo"; // ضيف الـ API key بتاعك
-  const spreadsheetId = "1BauNTIeSgsfNfJp6LStdoX3UEZ-BQNYExNDBapr3Kzs";
-  const range = "Achievements"; // غيّره لو اسم التاب مختلف
+  const spreadsheetId = "1I5gxqCWa3XviwxWcJeV5oBCMQpqTbvI6S2buLN190uA";
+  const range = "Form Responses"; // غيّره لو اسم التاب مختلف
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
 
   const container = document.getElementById("achievements-container");
@@ -270,6 +271,8 @@
         setTimeout(() => overlay.classList.remove("active"), 400);
       }
     }
+
+    
     
 
 })();
@@ -300,54 +303,94 @@
                         We aim to represent our school’s vision and serve our community.
                 </p>
             </div>  
+            <div class="web-dev-title" style="margin-bottom: 40px;">Web Developers</div>
+  
             <div class="achievement-gallery">
                 <div class="achievement-gallery-item" id="founder">
-                    <img src="images/logo.png" alt="founder">
+                  <a href="https://www.facebook.com/ahmed.ragabshaltout/" target="_blank">
+                    <img src="images/Ahmed ragab.png" alt="founder">
                     <div class="achievement-gallery-overlay">
-                        <h4> founder</h4>
-                        <p class="job">Web developer</p>
-                    </div>
+                      <h4>Ahmed Ragab</h4>
+                      <!-- <p class="job">Web developer</p> -->
+                  </div>
+                  </a>
+                    
                 </div>
                 <div class="achievement-gallery-item" id="founder">
-                    <img src="images/logo.png" alt="founder">
+                  <a href="https://linktr.ee/Jo_m_sattar?fbclid=PAZXh0bgNhZW0CMTEAAafTkqhv5Qt2MrPXwBYgtmfg-qJzHzKPU45tAddpYCB7uxq0O16O5WWsb_Divg_aem_BuLm0zTahuew0t211Yr90Q" target="_blank">
+                    <img src="images/Yousef Abdelsattar.jpg" alt="founder">
                     <div class="achievement-gallery-overlay">
-                        <h4> founder</h4>
-                        <p class="job">Web developer</p>
-                    </div>
+                      <h4>Yousef Abdelsattar</h4>
+                      <!-- <p class="job">Web developer</p> -->
+                  </div>
+                  </a>
+                    
                 </div>
                 <div class="achievement-gallery-item" id="founder">
-                    <img src="images/logo.png" alt="founder">
+                  <a href="https://wa.me/+201061832010" target="_blank">
+                    <img src="images/yousef samir.jpg" alt="founder">
                     <div class="achievement-gallery-overlay">
-                        <h4> founder</h4>
-                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
-                    </div>
+                      <h4>Youseff Samir</h4>
+                      <!-- <p> &nbsp;&nbsp;&nbsp; Web developer</p> -->
+                  </div>
+                  </a>
+                    
                 </div>
                 <div class="achievement-gallery-item" id="founder">
-                    <img src="images/logo.png" alt="founder">
+                  <a href="http://www.linkedin.com/in/mohamed-wael-162166369" target="_blank">
+                    <img src="images/mohamed wael.png" alt="founder">
                     <div class="achievement-gallery-overlay">
-                        <h4> founder</h4>
-                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
+                        <h4>Mohamed Wael</h4>
+                        <!-- <p> &nbsp;&nbsp;&nbsp; Web developer</p> -->
                     </div>
+                  </a>
                 </div>
                 <div class="achievement-gallery-item" id="founder">
-                    <img src="images/logo.png" alt="founder">
+                  <a href="" target="_blank">
+                    <img src="" alt="founder">
                     <div class="achievement-gallery-overlay">
-                        <h4> founder</h4>
-                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
+                        <h4>Nazan Amr</h4>
+                        <!-- <p> &nbsp;&nbsp;&nbsp; Web developer</p> -->
                     </div>
+                  </a>
                 </div>
                 <div class="achievement-gallery-item" id="founder">
-                    <img src="images/logo.png" alt="founder">
+                  <a href="https://linktr.ee/YassenMohamed86" target="_blank">
+                    <img src="images/yassen mohamed.jpg" alt="founder">
                     <div class="achievement-gallery-overlay">
-                        <h4> founder</h4>
-                        <p> &nbsp;&nbsp;&nbsp; Web developer</p>
+                        <h4>Yassen Gaber</h4>
+                        <!-- <p> &nbsp;&nbsp;&nbsp; Web developer</p> -->
                     </div>
+                  </a>
                 </div>
 
                     </div>
                 </div>
                 </div>
             </div>
+        </div>
+        <div>
+          <div class="thanks-section">
+            <h2 class="thanks-title">Special Thanks</h2>
+            <p class="thanks-text">
+              We would like to show our sincere gratitude to these students who helped us assemble this website:
+            </p>
+            <div class="thanks-grid">
+              <div class="thanks-card">
+                <h4><a href="https://linktr.ee/Ezzeldin_Samy0" target="_blank">Ezz-Eldin Samy</a></h4>
+                <p>Graphic Designer</p>
+              </div>
+              <div class="thanks-card">
+                <h4><a href="https://www.facebook.com/share/17HvWn3hwm/" target="_blank">Kareem & Mina</a></h4>
+                <p>Content Writing</p>
+              </div>
+              <div class="thanks-card">
+                <h4><a href="https://linktr.ee/PetercallSaul" target="_blank">Peter Bekhit</a></h4>
+                <p>School Photographs</p>
+              </div>
+            </div>
+          </div>
+          
         </div>
     </section>
    <!-- Footer -->
