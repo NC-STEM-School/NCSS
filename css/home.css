@@ -449,6 +449,18 @@
    =========================================== */
 
 @media (max-width: 768px) {
+    .gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(27, 75, 90, 0.9));
+    color: white;
+    padding: 2rem;
+
+    transition: transform 0.3s ease;
+}
+
     .hero {
         min-height: 100vh;
         padding: var(--hero-padding-mobile);
