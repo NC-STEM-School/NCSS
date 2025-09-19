@@ -369,3 +369,108 @@
     margin-bottom: 0.5rem;
 }
 }
+
+
+.profile-photo {
+    width: 400px;         
+    height: 400px;        
+    overflow: hidden;     
+    border-radius: 50%;   
+  }
+  
+  .profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;    
+    object-position: center top; 
+  }
+
+  .web-dev-title {
+    margin-top: 40px;      
+    text-align: center;    
+    font-size: 28px;       
+    font-weight: 600;      
+    color: #333;          
+    font-family: 'Poppins', sans-serif; 
+    font-size: 2.8rem;
+    color: #094d6b;
+  }
+  
+  #websitefounders .section-header {
+    border-bottom: 2px solid #000; 
+    padding-bottom: 20px; 
+    margin-bottom: 20px;  
+}
+
+/* Thanks Section */
+.thanks-section {
+    margin: 60px auto;
+    text-align: center;
+    max-width: 900px;
+    padding: 20px;
+  }
+  
+  .thanks-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+  
+  .thanks-text {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  
+  .thanks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  
+  .thanks-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  
+  .thanks-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  }
+  
+  .thanks-card h4 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .thanks-card h4 a {
+    text-decoration: none;
+    color: #2980b9;
+    transition: color 0.3s;
+  }
+  
+  .thanks-card h4 a:hover {
+    color: #1a5276;
+  }
+  
+  .thanks-card p {
+    font-size: 0.95rem;
+    color: #777;
+  }
+  
+/* make the founders name always visible on screens less than 992 px like mobile and tablets */
+@media (max-width: 992px) {
+    .achievement-gallery-item .achievement-gallery-overlay {
+      opacity: 1 !important;       
+      visibility: visible !important;
+      transform: translateY(0) !important; 
+    }
+  }
+  
+  
