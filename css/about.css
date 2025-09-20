@@ -129,6 +129,14 @@
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
 }
+.vision-txt p span{
+    font-size: 1.5rem;
+}
+.vision-txt img{
+    width: 20%;
+    height: auto;
+    margin-top: 20px;
+}
 
 /* ===========================================
    ABOUT PAGE ANIMATIONS
@@ -204,12 +212,17 @@
     .foundation-txt p{
         padding-top:30px ;
     }
+    .vision-txt{
+        padding-bottom: 20px;
+    }
     .vision-txt p {
         width: 90%;
         max-width: 600px;
         padding-top: 30px;
     }
-    
+    .vision-txt img{
+        width: 30%;
+    }
     .about-foundation {
         grid-template-columns: 1fr;
         gap: 2rem;

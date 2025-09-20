@@ -154,6 +154,9 @@
 .extrac-img {
     margin-right: 10px;
     width: 400px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
 
 .extrac-img img {
@@ -283,7 +286,7 @@
     }
     
     .extrac-img {
-        width: 100%;
+        width: 60%;
         margin-right: 0;
         margin-bottom: 10px;
     }
@@ -338,9 +341,18 @@
         height: 60px;
         width: 60px;
     }
+    .extrac-img{
+        width: 100%;
+    }
+    .extrac-img img{
+        width: 60%;
+    }
     
     .extrac-expand-arrow {
         font-size: 2rem;
         right: 20px;
+    }
+    .extrac.active{
+        height: 500px;
     }
 }
