@@ -14,10 +14,8 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <div class="nav-logo">
-      <a href="index.html">
       <img src="images/logo.png" alt="New Cairo STEM School" class="logo">
-        </a>
-      <a href="index.html" class="logo-text">New Cairo STEM School</a>
+      <span class="logo-text">New Cairo STEM School</span>
     </div>
     <ul class="nav-menu" id="nav-menu">
       <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
@@ -65,6 +63,7 @@
           <li><a href="Achievments.html">Students Achievements</a></li>
           <li><a href="Staff.html">Staff</a></li>
           <li><a href="photos.html">Campus</a></li>
+          <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
       <div class="footer-section">
@@ -267,6 +266,70 @@ document.addEventListener('DOMContentLoaded', () => {
 // ================= Make functions globally available =================
 window.handleCardClick = handleCardClick;
 window.closeActiveCard = closeActiveCard;
+
+// ================= Auto-scroll Function =================
+function scrollToCard(memberElement) {
+  // Wait for the expanded info to finish its animation (0.4s transition)
+  setTimeout(() => {
+    // Get the position of the clicked card (not just the expanded info)
+    const cardRect = memberElement.getBoundingClientRect();
+    const expandedInfo = memberElement.querySelector('.staff-expanded-info');
+    const expandedRect = expandedInfo.getBoundingClientRect();
+    
+    // Calculate if the entire card + expanded content is visible
+    const windowHeight = window.innerHeight;
+    const totalHeight = cardRect.height + expandedRect.height;
+    
+    // If the card or expanded content goes below viewport, scroll to show the clicked card
+    if (cardRect.top < 100 || expandedRect.bottom > windowHeight - 20) {
+      // Scroll to position the clicked card near the top with some padding
+      const scrollTarget = memberElement.offsetTop - 120;
+      
+      window.scrollTo({
+        top: Math.max(0, scrollTarget),
+        behavior: 'smooth'
+      });
+    }
+  }, 450); // Wait for expansion animation to complete
+}
+
+function handleCardClick(event, memberElement) {
+  event.stopPropagation();
+  
+  const card = memberElement.querySelector('.staff-card');
+  const expandedInfo = memberElement.querySelector('.staff-expanded-info');
+  
+  // If clicking the same card, close it
+  if (activeCard === memberElement) {
+    closeActiveCard();
+    return;
+  }
+  
+  // Close any currently active card
+  closeActiveCard();
+  
+  // Open the clicked card
+  card.classList.add('active');
+  expandedInfo.classList.add('active');
+  memberElement.classList.add('active');
+  activeCard = memberElement;
+  
+  // Scroll to the SPECIFIC card that was clicked
+  scrollToCard(memberElement);
+}
+
+// ================= Auto-scroll Function =================
+function scrollToCard(memberElement) {
+  // Wait for the expanded info to finish its animation (0.4s transition)
+  setTimeout(() => {
+    // Scroll directly to the clicked card's position
+    memberElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+      inline: 'nearest'
+    });
+  }, 450); // Wait for expansion animation to complete
+}
 </script>
 
 <script src="script.js"></script>
