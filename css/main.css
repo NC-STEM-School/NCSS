@@ -247,6 +247,16 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     gap: 15px;
 }
+.nav-logo a:visited{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    white-space: nowrap;
+    margin-right: 100px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
 
 .logo {
     height: 50px;
