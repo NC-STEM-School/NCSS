@@ -268,30 +268,7 @@ window.handleCardClick = handleCardClick;
 window.closeActiveCard = closeActiveCard;
 
 // ================= Auto-scroll Function =================
-function scrollToCard(memberElement) {
-  // Wait for the expanded info to finish its animation (0.4s transition)
-  setTimeout(() => {
-    // Get the position of the clicked card (not just the expanded info)
-    const cardRect = memberElement.getBoundingClientRect();
-    const expandedInfo = memberElement.querySelector('.staff-expanded-info');
-    const expandedRect = expandedInfo.getBoundingClientRect();
-    
-    // Calculate if the entire card + expanded content is visible
-    const windowHeight = window.innerHeight;
-    const totalHeight = cardRect.height + expandedRect.height;
-    
-    // If the card or expanded content goes below viewport, scroll to show the clicked card
-    if (cardRect.top < 100 || expandedRect.bottom > windowHeight - 20) {
-      // Scroll to position the clicked card near the top with some padding
-      const scrollTarget = memberElement.offsetTop - 120;
-      
-      window.scrollTo({
-        top: Math.max(0, scrollTarget),
-        behavior: 'smooth'
-      });
-    }
-  }, 450); // Wait for expansion animation to complete
-}
+
 
 function handleCardClick(event, memberElement) {
   event.stopPropagation();
@@ -325,10 +302,10 @@ function scrollToCard(memberElement) {
     // Scroll directly to the clicked card's position
     memberElement.scrollIntoView({
       behavior: 'smooth',
-      block: 'start',
+      block: 'center',
       inline: 'nearest'
     });
-  }, 450); // Wait for expansion animation to complete
+  }, 50); // Wait for expansion animation to complete
 }
 </script>
 
