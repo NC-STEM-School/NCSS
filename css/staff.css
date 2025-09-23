@@ -1,5 +1,5 @@
 /* ===========================================
-   RESPONSIVE STAFF PAGE STYLES
+   RESPONSIVE STAFF PAGE STYLES - ADVANCED FLEXBOX LAYOUT
    =========================================== */
 
 /* ===========================================
@@ -12,6 +12,7 @@
 
 html, body {
   max-width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling when needed */
 }
 
 body {
@@ -27,7 +28,6 @@ body {
   min-height: 100vh;
   background-color: #f8f9fa;
   padding: 20px 0;
-  overflow: hidden;
   width: 100%;
 }
 
@@ -44,7 +44,6 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-  overflow: hidden;
 }
 
 .error-message {
@@ -55,11 +54,12 @@ body {
 }
 
 /* ===========================================
-   SUBJECT SECTIONS
+   SUBJECT SECTIONS - MINIMAL SPACING
    =========================================== */
 
 .subject-section {
-  margin-bottom: 60px;
+  margin-bottom: 30px; /* Minimal spacing - no extra padding */
+  transition: none; /* No dynamic spacing changes */
 }
 
 .subject-header {
@@ -76,51 +76,146 @@ body {
 }
 
 /* ===========================================
-   RESPONSIVE GRID SYSTEM
+   FLEXBOX LAYOUT - CONSISTENT SPACING
    =========================================== */
 
 .staff-grid {
-  display: grid;
-  gap: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 20px; /* Consistent gap for all scenarios */
   position: relative;
-  overflow: hidden;
+  align-items: flex-start;
+  transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  contain: layout; /* Prevent layout recalculation issues */|
+  align-items: stretch;
+
 }
 
-/* Desktop: 3 cards per row */
+/* Desktop: Controlled card layout - prevent overlapping */
 @media (min-width: 768px) {
   .staff-grid {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    max-width: 100%; /* Strict container bounds */
+    overflow: hidden; /* Prevent any overflow */
+  }
+  
+  /* Default state: Equal cards with strict bounds */
+  .staff-member {
+    flex: 1 1 0;
+    flex-direction: column;
+    min-width: 200px;
+    max-width: 320px; /* Strict maximum to prevent expansion */
+    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    z-index: 1; /* All cards on same layer */
+  }
+  
+  /* Active card: controlled expansion within bounds */
+  .staff-member.active {
+    flex: 1.3 0 auto; /* Minimal expansion to prevent overlap */
+    max-width: 350px; /* Strict limit */
+    min-width: 280px;
+    z-index: 1; /* Keep on same layer as other cards */
+  }
+  
+  /* Shrinking cards: maintain readability */
+  .staff-grid:has(.staff-member.active) .staff-member:not(.active) {
+    flex: 0.8 1 0; /* Gentle shrinking */
+    min-width: 180px;
+    max-width: 220px; /* Controlled shrinking */
+    z-index: 1; /* Same layer */
+  }
+  
+  /* 2-card layout: maintain proportions */
+  .staff-grid:has(.staff-member:nth-child(2):last-child) .staff-member {
+    flex: 1 1 0;
+    max-width: 380px;
+  }
+  
+  .staff-grid:has(.staff-member:nth-child(2):last-child) .staff-member.active {
+    flex: 1.2 0 auto;
+    max-width: 400px;
+  }
+  
+  .staff-grid:has(.staff-member:nth-child(2):last-child) .staff-member:not(.active) {
+    flex: 0.9 1 0;
+    max-width: 280px;
   }
 }
 
-/* Mobile: 1 card per row */
+/* Mobile: Single column layout */
 @media (max-width: 767px) {
   .staff-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 20px;
+  }
+  
+  .staff-member {
+    flex: none;
+    width: 100%;
   }
 }
 
 /* ===========================================
-   STAFF MEMBER CARDS
+   STAFF MEMBER CARDS - SMOOTH TRANSITIONS
    =========================================== */
 
 .staff-member {
-  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: left center; /* Prevent jumping during transitions */
+  contain: layout; /* Optimize layout performance */
 }
+
+/* Desktop: Always horizontal flexbox - prevents layout shifts */
+@media (min-width: 768px) {
+  .staff-member {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* Mobile: Vertical flexbox for bottom expansion */
+@media (max-width: 767px) {
+  .staff-member {
+    flex-direction: column;
+  }
+}
+
+/* ===========================================
+   CARD STYLING - CONSISTENT DIMENSIONS
+   =========================================== */
 
 .staff-card {
   background: #ffffff;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   cursor: pointer;
   position: relative;
   height: 280px;
+  flex-shrink: 0; /* Card maintains size while container flexes */
+  contain: paint; /* Optimize rendering */
+}
+
+/* Desktop: Full width of container */
+@media (min-width: 768px) {
+  .staff-card {
+    width: 100%;
+    min-width: 180px; /* Minimum readable size */
+  }
+}
+
+/* Mobile: Full width cards */
+@media (max-width: 767px) {
+  .staff-card {
+    width: 100%;
+  }
 }
 
 .staff-card:hover {
@@ -148,7 +243,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .staff-card:hover .staff-image {
@@ -164,7 +259,7 @@ body {
   color: white;
   padding: 20px;
   transform: translateY(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .staff-card:hover .staff-overlay,
@@ -176,44 +271,126 @@ body {
   font-size: 1.3rem;
   font-weight: 600;
   margin: 0 0 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .staff-title {
   font-size: 0.95rem;
   margin: 0;
   opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===========================================
-   EXPANDED INFO SECTION
+   SLIDING PANEL - CONTROLLED EXPANSION WITHOUT FLASHING
    =========================================== */
 
 .staff-expanded-info {
+  position: relative;   /* keep it in the flow of the card */
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   border: 2px solid #094d6b;
-  margin-top: 15px;
-  max-height: 0;
   overflow: hidden;
-  transition: all 0.4s ease;
   opacity: 0;
-  transform: translateY(-10px);
+  transform-origin: left center;
 }
 
-.staff-expanded-info.active {
-  max-height: 400px;
-  opacity: 1;
-  transform: translateY(0);
+/* Desktop: Strict slider control - SAME LAYER as cards, no overlap */
+@media (min-width: 768px) {
+  .staff-expanded-info {
+    height: 280px; /* Match card height exactly */
+    width: 0; /* Start completely collapsed */
+    margin-left: 20px; /* Consistent spacing */
+    margin-right: 20px; /* Consistent right spacing */
+    flex-shrink: 0;
+    flex-grow: 0; /* NEVER grow beyond set width */
+    min-width: 0;
+    max-width: 0; /* Start with zero max-width */
+    position: relative;
+    z-index: 1; /* SAME layer as cards - no overlap */
+    
+    /* Single smooth transition */
+    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  
+  .staff-expanded-info.active {
+      display: block;       /* show when active */
+    width: 260px; /* Fixed width - NEVER full screen */
+    max-width: 260px; /* Hard limit */
+    min-width: 260px; /* No shrinking below this */
+    opacity: 1;
+    z-index: 1; /* Same layer as cards */
+    
+    /* Same transition for smooth retraction */
+    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  
+  /* Ensure clean collapse - NO full-screen flash */
+  .staff-member:not(.active) .staff-expanded-info {
+    width: 0 !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    margin-right: 0 !important; /* Collapse right margin */
+    opacity: 0;
+    z-index: 1; /* Same layer */
+    
+    /* Smooth collapse */
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  
+  /* Additional safety: prevent any flex expansion */
+  .staff-expanded-info,
+  .staff-expanded-info.active {
+    flex-basis: auto !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Ensure slider never goes to screen edge or overlaps */
+  .staff-grid .staff-expanded-info.active {
+    position: relative;
+    right: auto;
+    left: auto;
+    max-width: 260px !important; /* Absolute limit */
+    z-index: 1; /* Same layer enforcement */
+  }
+}
+
+/* Mobile: Slide to the bottom */
+@media (max-width: 767px) {
+  .staff-expanded-info {
+    margin-top: 15px;
+    margin-left: 0;
+    margin-right: 0;
+    max-height: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .staff-expanded-info.active {
+    max-height: 400px;
+    opacity: 1;
+  }
 }
 
 /* ===========================================
-   EXPANDED INFO CONTENT
+   PANEL CONTENT - TOP ALIGNED WITH HIDDEN SCROLL
    =========================================== */
 
 .staff-info-content {
   padding: 25px;
   position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start; /* Start from top */
+  min-width: 200px;
   overflow: hidden;
 }
 
@@ -232,7 +409,8 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 10;
 }
 
 .close-btn:hover {
@@ -240,11 +418,21 @@ body {
   color: #094d6b;
 }
 
+.staff-details {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-right: 5px; /* Minimal space for hidden scrollbar */
+}
+
 .staff-details h4 {
   font-size: 1.4rem;
   color: #094d6b;
   margin: 0 0 10px 0;
   font-weight: 600;
+  width: 100%;
 }
 
 .staff-details .position {
@@ -252,6 +440,7 @@ body {
   color: #666;
   margin: 0 0 8px 0;
   font-weight: 500;
+  width: 100%;
 }
 
 .staff-details .subject {
@@ -261,12 +450,49 @@ body {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  width: 100%;
 }
+
+/* ===========================================
+   SCROLLABLE TEXT WITH COMPLETELY HIDDEN SCROLLBAR
+   =========================================== */
 
 .info-text {
   color: #333;
   line-height: 1.6;
   font-size: 0.95rem;
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  /* Complete scrollbar removal for all browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  
+  /* Additional padding technique for complete invisibility */
+  padding-right: 20px;
+  margin-right: -20px;
+}
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+.info-text::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent;
+  -webkit-appearance: none;
+}
+
+/* Ensure text starts from top */
+.info-text > *:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.info-text > *:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 /* ===========================================
@@ -313,29 +539,10 @@ body {
   .staff-expanded-info.active {
     max-height: 300px;
   }
-}
-
-/* ===========================================
-   SCROLLBAR REMOVAL
-   =========================================== */
-
-/* Remove all scrollbars */
-::-webkit-scrollbar {
-  display: none;
-}
-
-* {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Ensure no element causes overflow */
-.staff-expanded-info,
-.staff-info-content,
-.info-text {
-  -webkit-scrollbar: none;
-  scrollbar-width: none;
-  overflow: hidden;
+  
+  .staff-grid {
+    gap: 15px;
+  }
 }
 
 /* ===========================================
@@ -359,3 +566,28 @@ body {
     animation: none !important;
   }
 }
+
+/* ===========================================
+   PERFORMANCE OPTIMIZATIONS
+   =========================================== */
+
+/* Hardware acceleration for smooth animations */
+.staff-member,
+.staff-card,
+.staff-expanded-info {
+  will-change: transform, opacity, width;
+}
+
+/* GPU-accelerated transforms */
+.staff-card:hover,
+.staff-card.active,
+.staff-overlay {
+  transform: translateZ(0); /* Force GPU acceleration */
+}
+
+/* Smooth text rendering during animations */
+.staff-details * {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
