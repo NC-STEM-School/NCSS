@@ -321,9 +321,9 @@ body {
   
   .staff-expanded-info.active {
       display: block;       /* show when active */
-    width: 260px; /* Fixed width - NEVER full screen */
-    max-width: 260px; /* Hard limit */
-    min-width: 260px; /* No shrinking below this */
+    width: 300px; /* Fixed width - NEVER full screen */
+    max-width: 300px; /* Hard limit */
+    min-width: 300px; /* No shrinking below this */
     opacity: 1;
     z-index: 1; /* Same layer as cards */
     
@@ -425,7 +425,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-right: 5px; /* Minimal space for hidden scrollbar */
+  padding-right: 10px; /* Minimal space for hidden scrollbar */
 }
 
 .staff-details h4 {
