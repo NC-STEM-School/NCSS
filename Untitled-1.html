@@ -2,28 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Panorama Viewer</title>
-  <link rel="stylesheet" href="https://cdn.pannellum.org/2.5/pannellum.css"/>
-  <script src="https://cdn.pannellum.org/2.5/pannellum.js"></script>
+  <title>2D Panorama</title>
   <style>
-    #panorama {
+    .panorama-container {
       width: 100%;
-      height: 500px; /* Adjust height as needed */
+      overflow-x: auto;  /* يدي Scroll أفقي */
+      border: 2px solid #ccc;
+    }
+    .panorama-container img {
+      display: block;
+      max-height: 500px;  /* تقدر تتحكم في الارتفاع */
     }
   </style>
 </head>
 <body>
-
-  <div id="panorama"></div>
-
-  <script>
-    pannellum.viewer('panorama', {
-        "type": "equirectangular",
-        "panorama": "images/panorama.jpg",  // replace with your file path
-        "autoLoad": true,
-        "showZoomCtrl": true
-    });
-  </script>
-
+  <div class="panorama-container">
+    <img src="images/panorama.jpg" alt="Panorama">
+  </div>
 </body>
 </html>
