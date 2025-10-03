@@ -97,7 +97,7 @@
 // ================= Configuration =================
 const SHEET_CONFIG = {
   sheetId: "1BauNTIeSgsfNfJp6LStdoX3UEZ-BQNYExNDBapr3Kzs",
-  range: "Staff",
+  range: "Staff1",
   apiKey: "AIzaSyCAH2AEtxsa6t4GwoDVjCDIHUq_hhbNbjo"
 };
 
@@ -145,6 +145,8 @@ function closeActiveCard() {
     const expandedInfo = activeCard.querySelector('.staff-expanded-info');
     
     card.classList.remove('active');
+    // If in flip mode, also unflip
+    card.classList.remove('flipped');
     expandedInfo.classList.remove('active');
     activeCard.classList.remove('active');
     
@@ -152,52 +154,31 @@ function closeActiveCard() {
   }
 }
 
-function handleCardClick(event, memberElement) {
-  event.stopPropagation();
-  
-  const card = memberElement.querySelector('.staff-card');
-  const expandedInfo = memberElement.querySelector('.staff-expanded-info');
-  
-  // If clicking the same card, close it
-  if (activeCard === memberElement) {
-    closeActiveCard();
-    return;
-  }
-  
-  // Close any currently active card
-  closeActiveCard();
-  
-  // Open the clicked card
-  card.classList.add('active');
-  expandedInfo.classList.add('active');
-  memberElement.classList.add('active');
-  activeCard = memberElement;
-}
-
 // ================= HTML Generation =================
 function createStaffCard(member) {
   return `
     <div class="staff-member">
       <div class="staff-card" onclick="handleCardClick(event, this.closest('.staff-member'))">
-        <div class="staff-image-container">
-          <img src="${member['img url'] || 'images/placeholder.png'}" 
-               alt="${member.Name}" 
-               class="staff-image">
-          <div class="staff-overlay">
-            <h3 class="staff-name">${member.Name}</h3>
-            <p class="staff-title">${member.Title}</p>
+        <div class="staff-card-inner">
+          <div class="card-face card-front">
+            <div class="staff-image-container">
+              <img src="${member['img url'] || 'images/placeholder.png'}" 
+                   alt="${member.Name}" 
+                   class="staff-image">
+              <div class="staff-overlay">
+                <h3 class="staff-name">${member.Name}</h3>
+                <p class="staff-title">${member.Title}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="staff-expanded-info">
-        <div class="staff-info-content">
-          <button class="close-btn" onclick="closeActiveCard()">×</button>
-          <div class="staff-details">
-            <h4>${member.Name}</h4>
-            <p class="position">${member.Title}</p>
-            <p class="subject">${member.Subject}</p>
-            <div class="info-text">
-              ${member.Info || "No additional information available."}
+          <div class="card-face card-back">
+            <div class="flip-content">
+              <h4>${member.Name}</h4>
+              <p class="position">${member.Title}</p>
+              <p class="subject">${member.Subject}</p>
+              <div class="info-text">
+                ${member.Info || "No additional information available."}
+              </div>
             </div>
           </div>
         </div>
@@ -254,6 +235,8 @@ async function generateStaffSections() {
 // ================= Event Listeners =================
 document.addEventListener('DOMContentLoaded', () => {
   generateStaffSections();
+  // Final design: always use Flip mode
+  document.body.classList.add('mode-flip');
   
   // Close expanded card when clicking outside
   document.addEventListener('click', (event) => {
@@ -270,35 +253,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ================= Make functions globally available =================
-window.handleCardClick = handleCardClick;
-window.closeActiveCard = closeActiveCard;
-
 // ================= Auto-scroll Function =================
 
 
 function handleCardClick(event, memberElement) {
   event.stopPropagation();
   
+  const isFlipMode = document.body.classList.contains('mode-flip');
   const card = memberElement.querySelector('.staff-card');
-  const expandedInfo = memberElement.querySelector('.staff-expanded-info');
   
-  // If clicking the same card, close it
-  if (activeCard === memberElement) {
-    closeActiveCard();
+  // Flip mode: toggle flipped state on the card itself
+  if (isFlipMode) {
+    if (activeCard && activeCard !== memberElement) {
+      // Close previously active (remove flipped)
+      const prevCard = activeCard.querySelector('.staff-card');
+      prevCard.classList.remove('flipped');
+      activeCard.classList.remove('active');
+    }
+    // Toggle current
+    const willFlipOpen = !card.classList.contains('flipped');
+    card.classList.toggle('flipped');
+    memberElement.classList.toggle('active', willFlipOpen);
+    activeCard = willFlipOpen ? memberElement : null;
     return;
   }
-  
-  // Close any currently active card
-  closeActiveCard();
-  
-  // Open the clicked card
-  card.classList.add('active');
-  expandedInfo.classList.add('active');
-  memberElement.classList.add('active');
-  activeCard = memberElement;
-  
-  // Scroll to the SPECIFIC card that was clicked
   scrollToCard(memberElement);
 }
 
@@ -312,9 +290,14 @@ function scrollToCard(memberElement) {
       block: 'center',
       inline: 'nearest'
     });
-  }, 50); // Wait for expansion animation to complete
+  }, 0); // Scroll immediately to reduce perceived delay
 }
+
+// ================= Make functions globally available =================
+window.handleCardClick = handleCardClick;
+window.closeActiveCard = closeActiveCard;
 </script>
+
 
 <script src="script.js"></script>
 </body>
