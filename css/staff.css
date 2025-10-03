@@ -10,6 +10,14 @@
   box-sizing: border-box;
 }
 
+/* On mobile widths, remove the extra right padding trick to avoid visible white gutters */
+@media (max-width: 767px) {
+  .info-text {
+    padding-right: 0;
+    margin-right: 0;
+  }
+}
+
 html, body {
   max-width: 100%;
 
@@ -41,7 +49,7 @@ body {
 }
 
 #staff-container {
-  max-width: 1200px;
+  max-width: 1320px; /* Fits 4 x 300px + 3 x 12px gaps + gutters */
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -80,82 +88,73 @@ body {
    =========================================== */
 
 .staff-grid {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 20px; /* Consistent gap for all scenarios */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 300px);
+  gap: 12px; /* Consistent spacing */
   position: relative;
-  align-items: stretch;
-  transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
   contain: layout; /* Prevent layout recalculation issues */
-  
+  justify-content: start; /* align grid to the left */
+  justify-items: start;  /* align items to the left in their cells */
 }
 
-/* Desktop: Controlled card layout - prevent overlapping */
-@media (min-width: 768px) {
-  .staff-grid {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    max-width: 100%; /* Strict container bounds */
-    overflow: hidden; /* Prevent any overflow */
-  }
-  
-  /* Default state: Equal cards with strict bounds */
-  .staff-member {
-    flex: 1 1 0;
-    flex-direction: column;
-    min-width: 200px;
-    max-width: 320px; /* Strict maximum to prevent expansion */
-    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
-    position: relative;
-    z-index: 1; /* All cards on same layer */
-  }
-  
-  /* Active card: controlled expansion within bounds */
-  .staff-member.active {
-    flex: 1.3 0 auto; /* Minimal expansion to prevent overlap */
-    max-width: 630px; /* Strict limit */
-    min-width: 280px;
-    z-index: 1; /* Keep on same layer as other cards */
-  }
-  
-  /* Shrinking cards: maintain readability */
-  .staff-grid:has(.staff-member.active) .staff-member:not(.active) {
-    flex: 0.8 1 0; /* Gentle shrinking */
-    min-width: 180px;
-    max-width: 220px; /* Controlled shrinking */
-    z-index: 1; /* Same layer */
-  }
-  
-  /* 2-card layout: maintain proportions */
-  .staff-grid:has(.staff-member:nth-child(2):last-child) .staff-member {
-    flex: 1 1 0;
-    max-width: 380px;
-  }
-  
-  .staff-grid:has(.staff-member:nth-child(2):last-child) .staff-member.active {
-    flex: 1.2 0 auto;
-    max-width: 400px;
-  }
-  
-  .staff-grid:has(.staff-member:nth-child(2):last-child) .staff-member:not(.active) {
-    flex: 0.9 1 0;
-    max-width: 280px;
-  }
+/* ===========================================
+   FLIP MODE (D): flip card to show text
+   =========================================== */
+
+/* Base 3D structure (safe for all modes) */
+.staff-card {
+  perspective: 1000px;
+}
+.staff-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%; /* fill the card to flip the entire surface */
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.card-face {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 15px;
+  overflow: hidden;
+}
+.card-front { z-index: 2; }
+.card-back {
+  transform: rotateY(180deg);
+  background: #fff;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+.flip-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
 }
 
-/* Mobile: Single column layout */
+/* Activate flip only in flip mode */
+body.mode-flip .staff-expanded-info { display: none !important; }
+body.mode-flip .staff-member { grid-column: span 1 !important; }
+body.mode-flip .staff-card.flipped .staff-card-inner { transform: rotateY(180deg); animation: shadowFlip 0.8s ease forwards;}
+body.mode-flip .staff-overlay { opacity: 0.95; }
+/* In flip mode, avoid overlay hover slide which can look like only the image moves */
+body.mode-flip .staff-card:hover .staff-overlay { transform: translateY(0); }
+/* Ensure enough space to display ~150 characters on desktop */
+/* Whole card flips and controls size (no extra height for back only) */
+body.mode-flip .staff-card.flipped {
+  min-height: 0;
+  aspect-ratio: 1 / 1; /* keep square when flipped too */
+}
+
+
+/* Ensure panel never shows on mobile */
 @media (max-width: 767px) {
-  .staff-grid {
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .staff-member {
-    flex: none;
-    width: 100%;
-  }
+  .staff-expanded-info { display: none !important; }
 }
 
 /* ===========================================
@@ -165,7 +164,7 @@ body {
 .staff-member {
   display: flex;
   flex-direction: row;
-  transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: none; /* Avoid animating layout-sized elements */
   transform-origin: left center; /* Prevent jumping during transitions */
   contain: layout; /* Optimize layout performance */
 }
@@ -182,7 +181,13 @@ body {
 @media (max-width: 767px) {
   .staff-member {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch; /* Match widths for card and expanded info */
+  }
+  .staff-grid{
+    justify-content: center;
+  }
+  .subject-header{
+    text-align: center;
   }
 }
 
@@ -195,30 +200,21 @@ body {
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.18s ease-out; /* Faster */
   cursor: pointer;
   position: relative;
-  height: 280px;
-  max-width: 350px;
+  width: 300px;
+  height: 300px;
+  max-width: 300px;
+  min-width: 300px;
   flex-shrink: 0; /* Card maintains size while container flexes */
   contain: paint; /* Optimize rendering */
+  perspective: 1000px; /* ensure 3D perspective is applied at card level */
 }
 
-/* Desktop: Full width of container */
-@media (min-width: 768px) {
-  .staff-card {
-    width: 100%;
-    min-width: 180px; /* Minimum readable size */
-  }
-}
+/* Card size is unified at 300x300 across breakpoints */
 
-/* Mobile: Full width cards */
-@media (max-width: 767px) {
-  .staff-card {
-    width: 280px;
-    max-width: 100%;
-  }
-}
+/* (Handled above) */
 
 .staff-card:hover {
   transform: translateY(-5px);
@@ -238,14 +234,17 @@ body {
 .staff-image-container {
   position: relative;
   height: 100%;
+  width: 100%;
   overflow: hidden;
 }
 
 .staff-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  object-fit: contain; /* No cropping, no stretching */
+  object-position: center;
+  background: #f2f2f2; /* Neutral background for letterboxing */
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .staff-card:hover .staff-image {
@@ -261,12 +260,26 @@ body {
   color: white;
   padding: 20px;
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s ease-out;
 }
 
 .staff-card:hover .staff-overlay,
 .staff-card.active .staff-overlay {
   transform: translateY(0);
+}
+
+/* Disable hover-only effects on touch devices */
+@media (hover: none), (pointer: coarse) {
+  .staff-card:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  .staff-card:hover .staff-image {
+    transform: none;
+  }
+  .staff-card:hover .staff-overlay {
+    transform: translateY(100%);
+  }
 }
 
 .staff-name {
@@ -302,47 +315,39 @@ body {
   transform-origin: left center;
 }
 
+/* Flip-only final design: hide legacy expanded panel */
+.staff-expanded-info { display: none !important; }
+
 /* Desktop: Strict slider control - SAME LAYER as cards, no overlap */
 @media (min-width: 768px) {
   .staff-expanded-info {
-    height: 280px; /* Match card height exactly */
-    width: 0; /* Start completely collapsed */
-    margin-left: 20px; /* Consistent spacing */
-    margin-right: 20px; /* Consistent right spacing */
+    height: 320px; /* Fixed height for consistent layout */
+    width: 0; /* Start completely collapsed horizontally */
+    margin-left: 20px; /* Spacing between card and info */
+    margin-right: 0;  /* Avoid extra width inside the active item */
     flex-shrink: 0;
     flex-grow: 0; /* NEVER grow beyond set width */
     min-width: 0;
     max-width: 0; /* Start with zero max-width */
     position: relative;
     z-index: 1; /* SAME layer as cards - no overlap */
-    
-    /* Single smooth transition */
-    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
+    transform-origin: left center;
+    transform: translateX(-16px); /* slide-in start */
+    transition:
+      width 2s cubic-bezier(0.3, 0.7, 0.2, 1),
+      transform 2s cubic-bezier(0.3, 0.7, 0.2, 1),
+      opacity 1.2s ease 0.2s; /* fade slightly trails the wipe */
   }
   
   .staff-expanded-info.active {
       display: block;       /* show when active */
-    width: 300px; /* Fixed width - NEVER full screen */
+    width: 300px; /* Fixed width */
     max-width: 300px; /* Hard limit */
     min-width: 300px; /* No shrinking below this */
     opacity: 1;
     z-index: 1; /* Same layer as cards */
-    
-    /* Same transition for smooth retraction */
-    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  
-  /* Ensure clean collapse - NO full-screen flash */
-  .staff-member:not(.active) .staff-expanded-info {
-    width: 0 !important;
-    max-width: 0 !important;
-    min-width: 0 !important;
-    margin-right: 0 !important; /* Collapse right margin */
-    opacity: 0;
-    z-index: 1; /* Same layer */
-    
-    /* Smooth collapse */
-    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform: translateX(0); /* slide-in end */
   }
   
   /* Additional safety: prevent any flex expansion */
@@ -358,7 +363,7 @@ body {
     position: relative;
     right: auto;
     left: auto;
-    max-width: 260px !important; /* Absolute limit */
+    max-width: 300px !important; /* Align with fixed width */
     z-index: 1; /* Same layer enforcement */
   }
 }
@@ -370,22 +375,45 @@ body {
     margin-left: 0;
     margin-right: 0;
     max-height: 0;
-    width: 100%;
+    width: 100%; /* Matches the card width due to parent align-items: stretch */
+    max-width: 100%;
     overflow: hidden;
+    transform: translateY(-10px); /* slide-down start */
+    transition:
+      max-height 1.6s ease,
+      transform 1.6s ease,
+      opacity 1s ease 0.15s; /* slight delay for wipe feel */
   }
   
   .staff-expanded-info.active {
     max-height: 400px;
     opacity: 1;
   }
+
+  /* Flip mode mobile optimizations */
+  body.mode-flip .staff-card { width: 100%; max-width: 100%; }
+  /* Keep image 1:1 when not flipped */
+  body.mode-flip .staff-card:not(.flipped) { aspect-ratio: 1 / 1; }
+  /* When flipped on mobile, keep square; back content scrolls if longer */
+  body.mode-flip .staff-card.flipped {
+    aspect-ratio: 1 / 1;
+    height: auto;
+    min-height: 0;
+  }
+  body.mode-flip .flip-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
+
 
 /* ===========================================
    PANEL CONTENT - TOP ALIGNED WITH HIDDEN SCROLL
+{{ ... }}
    =========================================== */
 
 .staff-info-content {
-  padding: 25px;
+  padding: 16px; /* Reduce padding to remove large white space */
   position: relative;
   height: 100%;
   display: flex;
@@ -429,7 +457,8 @@ body {
   padding-right: 10px; /* Minimal space for hidden scrollbar */
 }
 
-.staff-details h4 {
+.staff-details h4,
+.flip-content h4 {
   font-size: 1.4rem;
   color: #094d6b;
   margin: 0 0 10px 0;
@@ -437,7 +466,8 @@ body {
   width: 100%;
 }
 
-.staff-details .position {
+.staff-details .position,
+.flip-content .position {
   font-size: 1rem;
   color: #666;
   margin: 0 0 8px 0;
@@ -445,7 +475,8 @@ body {
   width: 100%;
 }
 
-.staff-details .subject {
+.staff-details .subject,
+.flip-content .subject {
   font-size: 0.9rem;
   color: #094d6b;
   margin: 0 0 15px 0;
@@ -473,8 +504,8 @@ body {
   -ms-overflow-style: none; /* Internet Explorer and Edge */
   
   /* Additional padding technique for complete invisibility */
-  padding-right: 20px;
-  margin-right: -20px;
+  padding-right: 16px;
+  margin-right: -16px;
 }
 
 /* Hide scrollbar for WebKit browsers (Chrome, Safari, Edge) */
@@ -510,9 +541,8 @@ body {
     font-size: 1.5rem;
   }
   
-  .staff-card {
-    height: 250px;
-  }
+  /* Allow natural height so flip back content is readable */
+  .staff-card { height: auto; }
   
   .staff-name {
     font-size: 1.2rem;
@@ -527,7 +557,7 @@ body {
   }
   
   .staff-info-content {
-    padding: 20px;
+    padding: 12px; /* Smaller padding on small phones */
   }
   
   #staff-container {
@@ -543,7 +573,7 @@ body {
   }
   
   .staff-grid {
-    gap: 15px;
+    gap: 12px; /* Slightly tighter small-mobile spacing */
   }
 }
 
@@ -593,3 +623,21 @@ body {
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
+/* Mode-specific behaviors removed; Flip is final design */
+@keyframes shadowFlip {
+  0% {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);   /* flat */
+  }
+  25% {
+    box-shadow: 12px 4px 20px rgba(0,0,0,0.08); /* tilting right */
+  }
+  50% {
+    box-shadow: 0 4px 5px rgba(0,0,0,0.06);   /* edge-on, very faint */
+  }
+  75% {
+    box-shadow: -12px 4px 20px rgba(0,0,0,0.08); /* tilting left */
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);   /* flat again */
+  }
+}
