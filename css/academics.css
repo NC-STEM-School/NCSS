@@ -323,6 +323,9 @@
     .academic-card {
         padding: 1.2rem;
     }
+    .extrac{
+        height: 112px;
+    }
     
     .card-icon {
         font-size: 2.5rem;

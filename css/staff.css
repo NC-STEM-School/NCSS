@@ -140,7 +140,7 @@ body {
 /* Activate flip only in flip mode */
 body.mode-flip .staff-expanded-info { display: none !important; }
 body.mode-flip .staff-member { grid-column: span 1 !important; }
-body.mode-flip .staff-card.flipped .staff-card-inner { transform: rotateY(180deg); }
+body.mode-flip .staff-card.flipped .staff-card-inner { transform: rotateY(180deg); animation: shadowFlip 0.8s ease forwards;}
 body.mode-flip .staff-overlay { opacity: 0.95; }
 /* In flip mode, avoid overlay hover slide which can look like only the image moves */
 body.mode-flip .staff-card:hover .staff-overlay { transform: translateY(0); }
@@ -182,6 +182,12 @@ body.mode-flip .staff-card.flipped {
   .staff-member {
     flex-direction: column;
     align-items: stretch; /* Match widths for card and expanded info */
+  }
+  .staff-grid{
+    justify-content: center;
+  }
+  .subject-header{
+    text-align: center;
   }
 }
 
@@ -618,3 +624,20 @@ body.mode-flip .staff-card.flipped {
 }
 
 /* Mode-specific behaviors removed; Flip is final design */
+@keyframes shadowFlip {
+  0% {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);   /* flat */
+  }
+  25% {
+    box-shadow: 12px 4px 20px rgba(0,0,0,0.08); /* tilting right */
+  }
+  50% {
+    box-shadow: 0 4px 5px rgba(0,0,0,0.06);   /* edge-on, very faint */
+  }
+  75% {
+    box-shadow: -12px 4px 20px rgba(0,0,0,0.08); /* tilting left */
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);   /* flat again */
+  }
+}
