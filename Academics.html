@@ -294,10 +294,178 @@
   }
 })();
 </script>
+<section id="Magazines">
+    <h1 class="magazines-header">Club Magazines</h1>
+    <div id="magazines">
 
-
-    </section>
+    </div>
 </section>
+<script>
+(async function () {
+  const apiKey = "AIzaSyCAH2AEtxsa6t4GwoDVjCDIHUq_hhbNbjo";
+  const spreadsheetId = "1BauNTIeSgsfNfJp6LStdoX3UEZ-BQNYExNDBapr3Kzs";
+  const range = "club magazines";
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+
+  const container = document.getElementById("magazines");
+  const CACHE_KEY = "magazines_cache_v1";
+  const CACHE_TTL = 30 * 1000; // 30s
+
+  function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  async function fetchWithRetry(url, retries = 5, baseDelay = 700) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          const status = res.status;
+          const e = new Error(`HTTP ${status}`);
+          e.status = status;
+          throw e;
+        }
+        return await res.json();
+      } catch (err) {
+        console.warn(`fetch attempt ${attempt} failed`, err);
+        const status = err.status || null;
+        const retryable = !status || [429, 500, 502, 503, 504].includes(status);
+        if (attempt === retries || !retryable) throw err;
+        const jitter = Math.random() * 400;
+        const delay = baseDelay * Math.pow(2, attempt - 1) + jitter;
+        await sleep(delay);
+      }
+    }
+  }
+
+  function showLoading() {
+    container.innerHTML = `
+      <div class="loading-spinner">
+        <div class="loading-bg">
+          <p>Loading Magazines...</p>
+          <div class="loader"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFromData(data, { stale = false } = {}) {
+    console.log("Rendering magazines data:", data);
+    if (!data || !data.values || data.values.length < 2) {
+      container.innerHTML = `<p>⚠️ No Magazines found yet.</p>`;
+      return;
+    }
+
+    const headers = data.values[0];
+    const rows = data.values.slice(1);
+
+    const colIndex = {
+      title: headers.indexOf("The title"),
+      desc: headers.indexOf("Description"), // If no Description, this will be -1, handle as empty
+      pdfUrl: headers.indexOf("upload magazine"), // Use the Google Drive link
+      club: headers.indexOf("club name"),
+    };
+
+    container.innerHTML = "";
+
+    if (stale) {
+      const note = document.createElement("div");
+      note.className = "stale-notice";
+      note.textContent = "Showing cached data (may be slightly out of date).";
+      container.appendChild(note);
+    }
+
+    for (const row of rows) {
+      const title = row[colIndex.title] || "Untitled";
+      const desc = row[colIndex.desc] || "";
+      const pdfUrl = row[colIndex.pdfUrl] || "";
+      const club = row[colIndex.club] || "Unknown Club";
+
+      let iframeHtml = '';
+      if (pdfUrl) {
+        const fileId = pdfUrl.split('id=')[1];
+        if (fileId) {
+          const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+          iframeHtml = `<div class="magazine-pdf"><iframe src="${embedUrl}" width="100%" height="600" frameborder="0" allowfullscreen></iframe></div>`;
+        }
+      }
+
+      const magazine = document.createElement("div");
+      magazine.className = "magazine";
+
+      magazine.innerHTML = `
+        <div class="magazine-header">
+          <h3>${title}</h3>
+          <p class="magazine-club">By ${club}</p>
+        </div>
+        <div class="magazine-description">
+          <p>${desc.replace(/\n/g, "<br>")}</p>
+        </div>
+        ${iframeHtml}
+      `;
+
+      container.appendChild(magazine);
+    }
+  }
+
+  async function loadAndRender() {
+    showLoading();
+    await sleep(Math.floor(Math.random() * 600));
+
+    try {
+      const cachedText = localStorage.getItem(CACHE_KEY);
+      if (cachedText) {
+        const parsed = JSON.parse(cachedText);
+        if (Date.now() - parsed.ts < CACHE_TTL) {
+          renderFromData(parsed.data);
+          console.log("Rendered magazines from cache (fresh)");
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("cache read error", e);
+    }
+
+    try {
+      const data = await fetchWithRetry(url, 5, 700);
+      console.log("Fetched magazines data:", data);
+      try {
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ ts: Date.now(), data })
+        );
+      } catch (e) {
+        console.warn("cache write failed", e);
+      }
+      renderFromData(data);
+    } catch (err) {
+      console.error("Final fetch failed for magazines", err);
+      try {
+        const cachedText = localStorage.getItem(CACHE_KEY);
+        if (cachedText) {
+          const parsed = JSON.parse(cachedText);
+          renderFromData(parsed.data, { stale: true });
+          fetchWithRetry(url, 3, 800)
+            .then((fresh) => {
+              try {
+                localStorage.setItem(
+                  CACHE_KEY,
+                  JSON.stringify({ ts: Date.now(), data: fresh })
+                );
+              } catch (e) {}
+              renderFromData(fresh);
+            })
+            .catch(() => {});
+          return;
+        }
+      } catch (e) {}
+      container.innerHTML = `<p>⚠️ Unable to load magazines. Please try again later.</p>`;
+    }
+  }
+
+  loadAndRender();
+})();
+</script>
    <!-- Footer -->
 <footer class="footer">
     <div class="container">
